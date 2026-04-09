@@ -1,0 +1,24 @@
+[gd_scene load_steps=3 format=3 uid="uid://bk1main001"]
+
+[ext_resource type="PackedScene" path="res://scenes/player.tscn" id="1"]
+
+[sub_resource type="RectangleShape2D" id="RectangleShape2D_1"]
+size = Vector2(1280, 40)
+
+[node name="Main" type="Node2D"]
+
+[node name="Floor" type="StaticBody2D" parent="."]
+position = Vector2(640, 700)
+
+[node name="CollisionShape2D" type="CollisionShape2D" parent="Floor"]
+shape = SubResource("RectangleShape2D_1")
+
+[node name="FloorVisual" type="ColorRect" parent="Floor"]
+offset_left = -640.0
+offset_top = -20.0
+offset_right = 640.0
+offset_bottom = 20.0
+color = Color(0.4, 0.4, 0.4, 1)
+
+[node name="Player" parent="." instance=ExtResource("1")]
+position = Vector2(640, 620)

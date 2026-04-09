@@ -1,0 +1,7 @@
+# Godot build artifacts
+.godot/
+*.import
+
+# Export directories
+export/
+builds/

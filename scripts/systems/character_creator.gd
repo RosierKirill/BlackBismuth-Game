@@ -4,7 +4,7 @@ class_name CharacterCreator
 
 signal character_created(character_data: Dictionary)
 
-var character_data = {
+var character_data := {
 	"name": "",
 	"morphology": "",
 	"temperament": "",
@@ -21,31 +21,41 @@ func create_character(name: String, morphology: String, temperament: String, cha
 	character_data["morphology"] = morphology
 	character_data["temperament"] = temperament
 	character_data["class"] = character_class
-	
-	var stats = _calculate_character_stats()
+
+	var stats := _calculate_character_stats()
 	character_data["stats"] = stats
-	
-	character_created.emit(character_data)
-	return character_data
+
+	var created_character := character_data.duplicate(true)
+	character_created.emit(created_character)
+	return created_character
 
 func _calculate_character_stats() -> Dictionary:
-	var morph_stats = Constants.MORPHOLOGY_STATS[character_data["morphology"].duplicate()]
-	var temp_mods = Constants.TEMPERAMENT_MODIFIERS[character_data["temperament"]]
-	var class_mods = Constants.CLASS_STATS[character_data["class"]]
-	
-	# Apply temperament modifiers
-	for stat in temp_mods:
-		if stat in morph_stats:
-			morph_stats[stat] *= temp_mods[stat]
-		
-	# Apply class modifiers
-	for stat in class_mods:
-		if stat in morph_stats:
-			morph_stats[stat] *= class_mods[stat]
-		
+	var morphology_name := character_data.get("morphology", Constants.DEFAULT_MORPHOLOGY)
+	var temperament_name := character_data.get("temperament", Constants.DEFAULT_TEMPERAMENT)
+	var class_name_value := character_data.get("class", Constants.DEFAULT_CLASS)
+
+	var morph_stats := Constants.MORPHOLOGY_STATS.get(
+		morphology_name,
+		Constants.DEFAULT_CHARACTER_STATS
+	).duplicate(true)
+	var temp_mods := Constants.TEMPERAMENT_MODIFIERS.get(temperament_name, {})
+	var class_mods := Constants.CLASS_STATS.get(class_name_value, {})
+
+	for stat_name in temp_mods:
+		if morph_stats.has(stat_name):
+			morph_stats[stat_name] *= temp_mods[stat_name]
+
+	for stat_name in class_mods:
+		if morph_stats.has(stat_name):
+			morph_stats[stat_name] *= class_mods[stat_name]
+
+	for stat_name in morph_stats:
+		if typeof(morph_stats[stat_name]) == TYPE_FLOAT:
+			morph_stats[stat_name] = snappedf(morph_stats[stat_name], 0.01)
+
 	return morph_stats
 
-func set_appearance(hair_type: String, hair_color: String, skin_color: String):
+func set_appearance(hair_type: String, hair_color: String, skin_color: String) -> void:
 	character_data["appearance"]["hair_type"] = hair_type
 	character_data["appearance"]["hair_color"] = hair_color
 	character_data["appearance"]["skin_color"] = skin_color
